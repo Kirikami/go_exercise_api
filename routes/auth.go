@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/kirikami/go_api_with_jwt/config"
+	"github.com/kirikami/go_exercise_api/config"
 	"github.com/labstack/echo"
 )
 

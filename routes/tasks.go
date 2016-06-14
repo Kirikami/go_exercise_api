@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/kirikami/go_api_with_jwt/database"
+	"github.com/kirikami/go_exercise_api/database"
 )
 
 func SaveTaskHandler(c echo.Context) error {

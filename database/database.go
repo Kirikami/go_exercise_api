@@ -6,7 +6,7 @@ import (
 	//log "github.com/Sirupsen/logrus"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
-	"github.com/kirikami/go_api_with_jwt/config"
+	"github.com/kirikami/go_exercise_api/config"
 )
 
 var (
