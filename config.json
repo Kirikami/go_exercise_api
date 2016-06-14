@@ -1,0 +1,11 @@
+{
+  "ListenAddress": 1223,
+  "DatabaseConfig": {
+      "DatabaseUri": "127.0.0.1",
+      "Username": "test_user",
+      "Password": "Qwerty1",
+      "Port": 3306,
+      "DBName": "jwt_api"
+  },
+  "SigningKey": "きりかみ"
+}
