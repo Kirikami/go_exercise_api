@@ -2,10 +2,10 @@ package main
 
 import (
 	"flag"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
+	"fmt"
 	"github.com/kirikami/go_exercise_api/config"
 	"github.com/kirikami/go_exercise_api/database"
+	mw "github.com/kirikami/go_exercise_api/middleware"
 	"github.com/kirikami/go_exercise_api/routes"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
@@ -14,21 +14,17 @@ import (
 	_ "github.com/uber-common/zap"
 )
 
-var c *config.Configuration
-var DBConfig config.DatabaseConfig
+var (
+	conf     *config.Configuration
+	DBConfig config.DatabaseConfig
+	port     string
+)
 
 func init() {
 	configfile := flag.String("config", "config.json", "Config for connection to database")
-	c = config.MustNewConfig(configfile)
-	DBConfig = c.DatabaseConfig
-}
-
-func UseConfig(handler echo.HandlerFunc, db *gorm.DB, config *config.Configuration) echo.HandlerFunc {
-	return echo.HandlerFunc(func(c echo.Context) (err error) {
-		c.Set("db", db)
-		c.Set("config", config)
-		return handler(c)
-	})
+	conf = config.MustNewConfig(*configfile)
+	DBConfig = conf.DatabaseConfig
+	port = fmt.Sprintf(":%d", conf.ListenAddress)
 }
 
 func main() {
@@ -36,35 +32,29 @@ func main() {
 
 	server := echo.New()
 
-	server.Use(UseConfig(db, c))
-	server.Static("/", "assets")
-
-	server.GET("/login", routes.Login)
-
-	server.Use(middleware.JWTWithConfig(middleware.JWTConfig{
-		SigningKey:  []byte(c.SigningKey),
-		TokenLookup: "Authorization: Bearer" + echo.HeaderAuthorization,
-	}))
 	server.Use(middleware.Recover())
 	server.Use(middleware.Logger())
-
-	server.Get("/", routes.HomePageHandler)
+	server.Use(mw.UseConfig(db, conf))
 
 	aut := server.Group("/auth")
-	aut.Get("", routes.AutenteficationHandler)
-	aut.Get("/:provider/callback", routes.ProviderCallback)
+	aut.GET("", routes.AutenteficationHandler)
+	aut.GET("/callback", routes.ProviderCallback)
 
 	task := server.Group("/task")
-	task.Get("/write", routes.WriteTaskHandler)
+	task.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+		SigningKey:  []byte(conf.SigningKey),
+		TokenLookup: "Authorization: Bearer" + echo.HeaderAuthorization,
+	}))
 
-	//task.Post("/save", UseDB(routes.SaveTaskHandler, db))
+	task.GET("/write", routes.WriteTaskHandler)
 
-	//task.Get("/update/:id", UseDB(routes.UpdateTaskHandler, db))
-	//task.Get("/delete/:id", UseDB(routes.DeleteTaskHandler, db))
-	//task.Get("/get/:id", UseDB(routes.GetTaskHandler, db))
+	task.POST("/save", routes.SaveTaskHandler)
+
+	task.PUT("/update/:id", routes.UpdateTaskHandler)
+	task.DELETE("/delete/:id", routes.DeleteTaskHandler)
+	task.GET("/get/:id", routes.GetTaskHandler)
 
 	r := server.Group("/status")
-	r.Use(middleware.JWT([]byte(c.SigningKey)))
-	server.Run(standard.New(":" + string(c.ListenAddress)))
-	//	server.Run(standard.New(":1223"))
+	r.Use(middleware.JWT([]byte(conf.SigningKey)))
+	server.Run(standard.New(port))
 }

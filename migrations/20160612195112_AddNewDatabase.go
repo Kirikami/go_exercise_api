@@ -9,7 +9,7 @@ import (
 func Up_20160612195112(txn *sql.Tx) {
 
 	_, err := txn.Query(`CREATE TABLE tasks (
-		Id bigint,
+		Id bigint primary key,
 		Title char(255),
 		Description char(255),
 		Priority int,

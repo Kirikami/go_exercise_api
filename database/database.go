@@ -3,7 +3,6 @@ package database
 import (
 	"errors"
 	"fmt"
-	//log "github.com/Sirupsen/logrus"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/kirikami/go_exercise_api/config"
@@ -29,7 +28,7 @@ func MustNewDatabase(c config.DatabaseConfig) *gorm.DB {
 	db, err := NewDatabase(c)
 
 	if err != nil {
-		//log.Fatalf("Connection problem: %s", err)
+		panic(err)
 	}
 
 	return db

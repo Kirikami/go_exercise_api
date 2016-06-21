@@ -3,7 +3,6 @@ package config
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	//log "github.com/Sirupsen/logrus"
 	"os"
 )
@@ -26,7 +25,6 @@ var (
 )
 
 func NewConfig(configfile string) (*Configuration, error) {
-
 	if _, err := os.Stat(configfile); os.IsNotExist(err) {
 		return nil, ErrCantFindConfig
 	}
@@ -37,21 +35,18 @@ func NewConfig(configfile string) (*Configuration, error) {
 	decoder := json.NewDecoder(file)
 	err := decoder.Decode(&configuration)
 	if err != nil {
-		fmt.Print("parsing config file", err.Error())
-		//log.Fatal(err)
-		return nil, err
+		panic(err)
 	}
 
-	fmt.Print(configuration)
 	return &configuration, nil
 
 }
 
-func MustNewConfig(configfile *string) *Configuration {
-	config, err := NewConfig(*configfile)
+func MustNewConfig(configfile string) *Configuration {
+	config, err := NewConfig(configfile)
 
 	if err != nil {
-		//log.Fatalf("Cant parse config file: %s", err)
+		panic(err)
 	}
 
 	return config
