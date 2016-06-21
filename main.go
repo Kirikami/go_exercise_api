@@ -54,7 +54,5 @@ func main() {
 	task.DELETE("/delete/:id", routes.DeleteTaskHandler)
 	task.GET("/get/:id", routes.GetTaskHandler)
 
-	r := server.Group("/status")
-	r.Use(middleware.JWT([]byte(conf.SigningKey)))
 	server.Run(standard.New(port))
 }
