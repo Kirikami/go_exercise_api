@@ -9,15 +9,15 @@ import (
 func Up_20160612195112(txn *sql.Tx) {
 
 	_, err := txn.Query(`CREATE TABLE tasks (
-		Id bigint primary key,
-		Title char(255),
-		Description char(255),
-		Priority int,
-		CreatedAt datetime,
-		UpdatedAt datetime,
-		CompletedAt datetime,
-		IsDeleted tinyint,
-		IsCompleted tinyint
+		Id BIGINT PRIMARY_KEY,
+		Title CHAR(255),
+		Description CHAR(255),
+		Priority INT,
+		CreatedAt DATETIME,
+		UpdatedAt DATETIME,
+		CompletedAt DATETIME,
+		IsDeleted TINYINT,
+		IsCompleted TINYINT
 		    );`)
 	if err != nil {
 		fmt.Print(err)

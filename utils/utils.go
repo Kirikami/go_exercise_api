@@ -4,12 +4,10 @@ import (
 	"strconv"
 )
 
+var result int64
+
 func ParseIdInt64FromString(s string) (int64, error) {
-	result, err := strconv.ParseInt(c.FormValue("id"), 10, 64)
+	result, err := strconv.ParseInt(s, 10, 64)
 
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return result, err
 }

@@ -2,56 +2,31 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"github.com/jinzhu/gorm"
 	"github.com/kirikami/go_exercise_api/config"
 	"github.com/kirikami/go_exercise_api/database"
-	mw "github.com/kirikami/go_exercise_api/middleware"
-	"github.com/kirikami/go_exercise_api/routes"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/engine/standard"
-	"github.com/labstack/echo/middleware"
+	"github.com/kirikami/go_exercise_api/server"
 
 	_ "github.com/uber-common/zap"
 )
 
-var (
-	conf     *config.Configuration
-	DBConfig config.DatabaseConfig
-	port     string
-)
+var appConfig *config.Configuration
+var db *gorm.DB
 
 func init() {
+	initConfig()
+	initDatabase()
+}
+
+func initConfig() {
 	configfile := flag.String("config", "config.json", "Config for connection to database")
-	conf = config.MustNewConfig(*configfile)
-	DBConfig = conf.DatabaseConfig
-	port = fmt.Sprintf(":%d", conf.ListenAddress)
+	appConfig = config.MustNewConfig(*configfile)
+}
+
+func initDatabase() {
+	db = database.MustNewDatabase(appConfig.DatabaseConfig)
 }
 
 func main() {
-	db := database.MustNewDatabase(DBConfig)
-
-	server := echo.New()
-
-	server.Use(middleware.Recover())
-	server.Use(middleware.Logger())
-	server.Use(mw.UseConfig(db, conf))
-
-	aut := server.Group("/auth")
-	aut.GET("", routes.AutenteficationHandler)
-	aut.GET("/callback", routes.ProviderCallback)
-
-	task := server.Group("/task")
-	task.Use(middleware.JWTWithConfig(middleware.JWTConfig{
-		SigningKey:  []byte(conf.SigningKey),
-		TokenLookup: "Authorization: Bearer" + echo.HeaderAuthorization,
-	}))
-
-	task.POST("/save", routes.SaveTaskHandler)
-
-	task.PUT("/update/:id", routes.UpdateTaskHandler)
-	task.DELETE("/delete/:id", routes.DeleteTaskHandler)
-	task.GET("/get/:id", routes.GetTaskHandler)
-	task.GET("/get_all_tasks", routes.GetAllTasksHendler)
-
-	server.Run(standard.New(port))
+	server.StartServer(db, appConfig)
 }

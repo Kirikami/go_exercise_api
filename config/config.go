@@ -8,16 +8,23 @@ import (
 )
 
 type Configuration struct {
-	ListenAddress  int
-	DatabaseConfig DatabaseConfig
-	SigningKey     string
+	ListenAddress  int            `json:"listen_address"`
+	DatabaseConfig DatabaseConfig `json:"database_config"`
+	FacebookConfig FacebookConfig `json:"facebook_config"`
+	SigningKey     string         `json:"jwt_key"`
 }
 type DatabaseConfig struct {
-	DatabaseUri string
-	Username    string
-	Password    string
-	Port        int
-	DBName      string
+	DatabaseUri string `json:"database_address"`
+	Username    string `json:"user"`
+	Password    string `json:"password"`
+	Port        int    `json:"port"`
+	DBName      string `json:"database_name"`
+}
+
+type FacebookConfig struct {
+	ID              string `json:"fb_id"`
+	Key             string `json:"fb_key"`
+	CallbackAddress string `json:"server_callback_address"`
 }
 
 var (
@@ -35,7 +42,7 @@ func NewConfig(configfile string) (*Configuration, error) {
 	decoder := json.NewDecoder(file)
 	err := decoder.Decode(&configuration)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return &configuration, nil

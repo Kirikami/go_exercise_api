@@ -5,7 +5,6 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/kirikami/go_exercise_api/database"
@@ -14,7 +13,7 @@ import (
 
 func SaveTaskHandler(c echo.Context) error {
 	const timeForm = "3 04 PM"
-	var ids int64
+	var id, ids int64
 
 	currentTime := time.Now()
 	tasks := []database.Task{}
@@ -38,10 +37,10 @@ func SaveTaskHandler(c echo.Context) error {
 		return err
 	}
 
-	createdAt := &currentTime
-	updatedAt := &currentTime
-	isDeleted := false
-	isCompeted := false
+	task.CreatedAt = &currentTime
+	task.UpdatedAt = &currentTime
+	task.IsDeleted = false
+	task.IsCompleted = false
 
 	err = db.Save(&task).Error
 	if err != nil {
@@ -58,7 +57,7 @@ func UpdateTaskHandler(c echo.Context) error {
 	db := c.Value("DBConnection").(*gorm.DB)
 	idParam := c.Param("id")
 
-	if id == "" {
+	if idParam == "" {
 		return echo.NewHTTPError(http.StatusNotFound)
 	}
 
@@ -69,7 +68,7 @@ func UpdateTaskHandler(c echo.Context) error {
 	}
 
 	task := database.Task{}
-	err := db.First(&task, id).Error
+	err = db.First(&task, id).Error
 
 	if err != nil {
 		return err
@@ -81,7 +80,7 @@ func UpdateTaskHandler(c echo.Context) error {
 		return err
 	}
 	task.UpdatedAt = &currentTime
-	if task.IsCompleted == "true" {
+	if task.IsCompleted == true {
 		task.CompletedAt = &currentTime
 	}
 	//task.IsCompleted, err = strconv.ParseBool(isCompleted)
@@ -101,7 +100,7 @@ func DeleteTaskHandler(c echo.Context) error {
 
 	idParam := c.Param("id")
 
-	if id == "" {
+	if idParam == "" {
 		return echo.NewHTTPError(http.StatusNotFound)
 	}
 
@@ -112,7 +111,7 @@ func DeleteTaskHandler(c echo.Context) error {
 	}
 
 	task := database.Task{}
-	err := db.First(&task, id).Error
+	err = db.First(&task, id).Error
 
 	if err != nil {
 		return err
@@ -133,7 +132,7 @@ func GetTaskHandler(c echo.Context) error {
 
 	idParam := c.Param("id")
 
-	if id == "" {
+	if idParam == "" {
 		return echo.NewHTTPError(http.StatusNotFound)
 	}
 
@@ -144,7 +143,7 @@ func GetTaskHandler(c echo.Context) error {
 	}
 
 	task := database.Task{}
-	err := db.First(&task, id).Error
+	err = db.First(&task, id).Error
 
 	if err != nil {
 		return err
