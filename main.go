@@ -46,13 +46,12 @@ func main() {
 		TokenLookup: "Authorization: Bearer" + echo.HeaderAuthorization,
 	}))
 
-	task.GET("/write", routes.WriteTaskHandler)
-
 	task.POST("/save", routes.SaveTaskHandler)
 
 	task.PUT("/update/:id", routes.UpdateTaskHandler)
 	task.DELETE("/delete/:id", routes.DeleteTaskHandler)
 	task.GET("/get/:id", routes.GetTaskHandler)
+	task.GET("/get_all_tasks", routes.GetAllTasksHendler)
 
 	server.Run(standard.New(port))
 }

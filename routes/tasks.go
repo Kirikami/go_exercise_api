@@ -9,147 +9,149 @@ import (
 	"time"
 
 	"github.com/kirikami/go_exercise_api/database"
+	u "github.com/kirikami/go_exercise_api/utils"
 )
 
 func SaveTaskHandler(c echo.Context) error {
 	const timeForm = "3 04 PM"
-	var ids int
-	var id int64
+	var ids int64
 
 	currentTime := time.Now()
 	tasks := []database.Task{}
 
 	db := c.Get("DBConnection").(*gorm.DB)
 
-	if c.FormValue("id") != "" {
-		id, err := strconv.ParseInt(c.FormValue("id"), 10, 64)
+	err := db.Find(&tasks).Count(&ids).Error
 
-		if err != nil {
-			return c.String(http.StatusInternalServerError, err.Error())
-		}
-
-		_ = id
-
-	} else {
-		err := db.Find(&tasks).Count(&ids).Error
-		if err != nil {
-			return c.String(http.StatusInternalServerError, err.Error())
-		}
-		id = int64(ids + 1)
-	}
-
-	title := c.FormValue("title")
-	description := c.FormValue("description")
-	priority, err := strconv.Atoi(c.FormValue("priority"))
 	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+		return err
 	}
+
+	id = int64(ids + 1)
+	task := &database.Task{
+		Id: id,
+	}
+
+	err = c.Bind(task)
+
+	if err != nil {
+		return err
+	}
+
 	createdAt := &currentTime
 	updatedAt := &currentTime
 	isDeleted := false
 	isCompeted := false
 
-	taskDocument := database.Task{id, title, description, priority, createdAt, updatedAt, nil, isDeleted, isCompeted}
-
-	err = db.Save(&taskDocument).Error
+	err = db.Save(&task).Error
 	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+		return err
 	}
 
-	return c.Redirect(302, "/")
+	return c.JSON(http.StatusCreated, task)
+
 }
 
 func UpdateTaskHandler(c echo.Context) error {
 	const timeForm = "3 04 PM"
 	currentTime := time.Now()
 	db := c.Value("DBConnection").(*gorm.DB)
+	idParam := c.Param("id")
 
-	id := c.Param("id")
 	if id == "" {
-		return c.Redirect(302, "/")
+		return echo.NewHTTPError(http.StatusNotFound)
+	}
+
+	id, err := u.ParseIdInt64FromString(idParam)
+
+	if err != nil {
+		return err
 	}
 
 	task := database.Task{}
 	err := db.First(&task, id).Error
+
 	if err != nil {
-		return c.String(http.StatusNotFound, err.Error())
+		return err
 	}
 
-	task.Title = c.FormValue("title")
-	task.Description = c.FormValue("description")
-	task.Priority, err = strconv.Atoi(c.FormValue("priority"))
+	err = c.Bind(task)
+
 	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+		return err
 	}
 	task.UpdatedAt = &currentTime
-	if c.FormValue("isCompeted") == "true" {
+	if task.IsCompleted == "true" {
 		task.CompletedAt = &currentTime
 	}
-	isCompleted := c.FormValue("isCompleted")
-	task.IsCompleted, err = strconv.ParseBool(isCompleted)
-
-	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
-	}
+	//task.IsCompleted, err = strconv.ParseBool(isCompleted)
 
 	err = db.Save(&task).Error
 
 	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+		return err
 	}
 
-	return c.Render(http.StatusOK, "write", task)
+	return c.JSON(http.StatusOK, task)
 }
 
 func DeleteTaskHandler(c echo.Context) error {
 
 	db := c.Value("DBConnection").(*gorm.DB)
 
-	id := c.Param("id")
+	idParam := c.Param("id")
+
 	if id == "" {
-		return c.Redirect(302, "/")
+		return echo.NewHTTPError(http.StatusNotFound)
+	}
+
+	id, err := u.ParseIdInt64FromString(idParam)
+
+	if err != nil {
+		return err
 	}
 
 	task := database.Task{}
 	err := db.First(&task, id).Error
 
 	if err != nil {
-		return c.String(http.StatusNotFound, err.Error())
+		return err
 	}
 
 	task.IsDeleted = true
 	err = db.Save(&task).Error
 
 	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+		return err
 	}
 
-	return c.Redirect(302, "/")
-}
-
-func WriteTaskHandler(c echo.Context) error {
-	task := database.Task{}
-	return c.Render(http.StatusOK, "write", task)
+	return c.NoContent(http.StatusNoContent)
 }
 
 func GetTaskHandler(c echo.Context) error {
-
 	db := c.Value("DBConnection").(*gorm.DB)
 
-	id := c.Param("id")
+	idParam := c.Param("id")
 
 	if id == "" {
-		return c.Redirect(302, "/")
+		return echo.NewHTTPError(http.StatusNotFound)
+	}
+
+	id, err := u.ParseIdInt64FromString(idParam)
+
+	if err != nil {
+		return err
 	}
 
 	task := database.Task{}
 	err := db.First(&task, id).Error
 
 	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+		return err
 	}
 
-	return c.Render(http.StatusOK, "view", task)
+	return c.JSON(http.StatusOK, task)
+
 }
 
 func GetAllTasksHendler(c echo.Context) error {
@@ -160,8 +162,8 @@ func GetAllTasksHendler(c echo.Context) error {
 	err := db.Find(&tasks).Error
 
 	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
+		return err
 	}
 
-	return c.Render(http.StatusOK, "index", tasks)
+	return c.JSON(http.StatusOK, tasks)
 }

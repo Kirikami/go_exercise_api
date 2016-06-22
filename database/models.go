@@ -15,7 +15,3 @@ type Task struct {
 	IsDeleted   bool       `sql:"bool" json:"isDeleted"`
 	IsCompleted bool       `sql:"bool" json:"isCompeted"`
 }
-
-func NewTask(id int64, title, description string, priority int, createdAt, updatedAt, completedAt *time.Time, isDeleted, isCompeted bool) *Task {
-	return &Task{id, title, description, priority, createdAt, updatedAt, completedAt, isDeleted, isCompeted}
-}
