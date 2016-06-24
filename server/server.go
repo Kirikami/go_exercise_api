@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/kirikami/go_exercise_api/config"
-	mw "github.com/kirikami/go_exercise_api/middleware"
 	"github.com/kirikami/go_exercise_api/routes"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
@@ -17,21 +16,27 @@ func StartServer(db *gorm.DB, appConfig *config.Configuration) {
 
 	server.Use(middleware.Recover())
 	server.Use(middleware.Logger())
-	server.Use(mw.UseConfig(db, appConfig))
+	server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowHeaders: []string{echo.HeaderAccessControlAllowOrigin},
+	}))
 
-	aut := server.Group("/auth")
-	aut.GET("", routes.AutenteficationHandler)
-	aut.GET("/callback", routes.ProviderCallback)
+	api := routes.ApiV1Handler{db, appConfig}
 
-	task := server.Group("/task")
+	v1 := server.Group("/v1")
+
+	aut := v1.Group("/auth")
+	aut.GET("", api.AutenteficationHandler)
+	aut.GET("/callback", api.ProviderCallback)
+
+	task := v1.Group("/task")
 	task.Use(middleware.JWT([]byte(appConfig.SigningKey)))
 
-	task.POST("/save", routes.SaveTaskHandler)
+	task.POST("/save", api.SaveTaskHandler)
 
-	task.PUT("/update/:id", routes.UpdateTaskHandler)
-	task.DELETE("/delete/:id", routes.DeleteTaskHandler)
-	task.GET("/get/:id", routes.GetTaskHandler)
-	task.GET("/get_all_tasks", routes.GetAllTasksHendler)
+	task.PUT("/update/:id", api.UpdateTaskHandler)
+	task.DELETE("/delete/:id", api.DeleteTaskHandler)
+	task.GET("/get/:id", api.GetTaskHandler)
+	task.GET("/get_all_tasks", api.GetAllTasksHendler)
 
 	task.GET("/status", func(c echo.Context) error {
 		return c.String(200, "Status ok")

@@ -1,8 +1,8 @@
 package routes
 
 import (
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 	"net/http"
 	"time"
@@ -11,36 +11,16 @@ import (
 	u "github.com/kirikami/go_exercise_api/utils"
 )
 
-func SaveTaskHandler(c echo.Context) error {
-	const timeForm = "3 04 PM"
-	var id, ids int64
+func (h ApiV1Handler) SaveTaskHandler(c echo.Context) error {
+	task := database.Task{}
 
-	currentTime := time.Now()
-	tasks := []database.Task{}
+	db := h.DB
 
-	db := c.Get("DBConnection").(*gorm.DB)
-
-	err := db.Find(&tasks).Count(&ids).Error
+	err := c.Bind(&task)
 
 	if err != nil {
 		return err
 	}
-
-	id = int64(ids + 1)
-	task := &database.Task{
-		Id: id,
-	}
-
-	err = c.Bind(task)
-
-	if err != nil {
-		return err
-	}
-
-	task.CreatedAt = &currentTime
-	task.UpdatedAt = &currentTime
-	task.IsDeleted = false
-	task.IsCompleted = false
 
 	err = db.Save(&task).Error
 	if err != nil {
@@ -51,11 +31,11 @@ func SaveTaskHandler(c echo.Context) error {
 
 }
 
-func UpdateTaskHandler(c echo.Context) error {
-	const timeForm = "3 04 PM"
+func (h ApiV1Handler) UpdateTaskHandler(c echo.Context) error {
 	currentTime := time.Now()
-	db := c.Value("DBConnection").(*gorm.DB)
-	idParam := c.Param("id")
+	db := h.DB
+	idParam := c.P(0)
+	fmt.Println(idParam)
 
 	if idParam == "" {
 		return echo.NewHTTPError(http.StatusNotFound)
@@ -74,16 +54,14 @@ func UpdateTaskHandler(c echo.Context) error {
 		return err
 	}
 
-	err = c.Bind(task)
+	err = c.Bind(&task)
 
 	if err != nil {
 		return err
 	}
-	task.UpdatedAt = &currentTime
 	if task.IsCompleted == true {
 		task.CompletedAt = &currentTime
 	}
-	//task.IsCompleted, err = strconv.ParseBool(isCompleted)
 
 	err = db.Save(&task).Error
 
@@ -94,11 +72,10 @@ func UpdateTaskHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, task)
 }
 
-func DeleteTaskHandler(c echo.Context) error {
+func (h ApiV1Handler) DeleteTaskHandler(c echo.Context) error {
+	db := h.DB
 
-	db := c.Value("DBConnection").(*gorm.DB)
-
-	idParam := c.Param("id")
+	idParam := c.P(0)
 
 	if idParam == "" {
 		return echo.NewHTTPError(http.StatusNotFound)
@@ -127,10 +104,11 @@ func DeleteTaskHandler(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-func GetTaskHandler(c echo.Context) error {
-	db := c.Value("DBConnection").(*gorm.DB)
+func (h ApiV1Handler) GetTaskHandler(c echo.Context) error {
+	db := h.DB
 
-	idParam := c.Param("id")
+	idParam := c.P(0)
+	fmt.Println(idParam)
 
 	if idParam == "" {
 		return echo.NewHTTPError(http.StatusNotFound)
@@ -153,9 +131,8 @@ func GetTaskHandler(c echo.Context) error {
 
 }
 
-func GetAllTasksHendler(c echo.Context) error {
-
-	db := c.Value("DBConnection").(*gorm.DB)
+func (h ApiV1Handler) GetAllTasksHendler(c echo.Context) error {
+	db := h.DB
 
 	tasks := []database.Task{}
 	err := db.Find(&tasks).Error
