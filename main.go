@@ -6,8 +6,6 @@ import (
 	"github.com/kirikami/go_exercise_api/config"
 	"github.com/kirikami/go_exercise_api/database"
 	"github.com/kirikami/go_exercise_api/server"
-
-	_ "github.com/uber-common/zap"
 )
 
 var appConfig *config.Configuration

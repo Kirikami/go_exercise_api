@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -38,7 +37,6 @@ func (h ApiV1Handler) ProviderCallback(c echo.Context) error {
 }
 
 func (h ApiV1Handler) AutenteficationHandler(c echo.Context) error {
-	fmt.Println("Test string")
 	fb := h.Config.FacebookConfig
 	goth.UseProviders(
 		facebook.New(fb.ID, fb.Key, fb.CallbackAddress),

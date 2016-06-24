@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo"
 	"net/http"
@@ -35,7 +34,6 @@ func (h ApiV1Handler) UpdateTaskHandler(c echo.Context) error {
 	currentTime := time.Now()
 	db := h.DB
 	idParam := c.P(0)
-	fmt.Println(idParam)
 
 	if idParam == "" {
 		return echo.NewHTTPError(http.StatusNotFound)
@@ -108,7 +106,6 @@ func (h ApiV1Handler) GetTaskHandler(c echo.Context) error {
 	db := h.DB
 
 	idParam := c.P(0)
-	fmt.Println(idParam)
 
 	if idParam == "" {
 		return echo.NewHTTPError(http.StatusNotFound)

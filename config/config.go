@@ -3,7 +3,6 @@ package config
 import (
 	"encoding/json"
 	"errors"
-	//log "github.com/Sirupsen/logrus"
 	"os"
 )
 
