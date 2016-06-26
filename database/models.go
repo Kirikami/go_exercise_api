@@ -9,8 +9,8 @@ type Task struct {
 	Title       string     `sql:"title" json:"title"`
 	Description string     `sql:"description" json:"description"`
 	Priority    int        `sql:"priority" json:"priority"`
-	CreatedAt   *time.Time `sql:"created_at" json:"createdAt"`
-	UpdatedAt   *time.Time `sql:"updated_at" json:"updatedAt"`
+	CreatedAt   time.Time  `sql:"created_at" json:"createdAt"`
+	UpdatedAt   time.Time  `sql:"updated_at" json:"updatedAt"`
 	CompletedAt *time.Time `sql:"completed_at" json:"completedAt"`
 	IsDeleted   bool       `sql:"is_deleted" json:"isDeleted"`
 	IsCompleted bool       `sql:"is_competed" json:"isCompeted"`

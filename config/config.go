@@ -45,7 +45,6 @@ func NewConfig(configfile string) (*Configuration, error) {
 	}
 
 	return &configuration, nil
-
 }
 
 func MustNewConfig(configfile string) *Configuration {
@@ -56,5 +55,4 @@ func MustNewConfig(configfile string) *Configuration {
 	}
 
 	return config
-
 }

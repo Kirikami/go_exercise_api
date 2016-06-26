@@ -1,0 +1,22 @@
+go:
+  build: .
+  links: 
+    - mysql
+  command: run_app
+
+mysql:
+  build: images/mysql
+  ports:
+    - "3307:3306"
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=jwt_api
+    - MYSQL_USER=test_user
+    - MYSQL_PASSWORD=Qwerty1
+
+nginx:
+  build: images/nginx
+  ports:
+    - "5000:80"
+  links:
+    - go

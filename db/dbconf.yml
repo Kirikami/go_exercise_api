@@ -1,0 +1,7 @@
+development:
+  driver: mysql
+  dsn: test_user:Qwerty1@tcp(127.0.0.1:3306)/jwt_api
+
+docker:
+  driver: mysql
+  open: test_user:Qwerty1@tcp(mysql:3306)/jwt_api

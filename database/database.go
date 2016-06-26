@@ -22,7 +22,6 @@ func NewDatabase(c config.DatabaseConfig) (*gorm.DB, error) {
 	}
 
 	return db, nil
-
 }
 
 func MustNewDatabase(c config.DatabaseConfig) *gorm.DB {
@@ -33,5 +32,4 @@ func MustNewDatabase(c config.DatabaseConfig) *gorm.DB {
 	}
 
 	return db
-
 }

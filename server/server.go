@@ -2,16 +2,15 @@ package server
 
 import (
 	"fmt"
-	"github.com/jinzhu/gorm"
-	"github.com/kirikami/go_exercise_api/config"
 	"github.com/kirikami/go_exercise_api/routes"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 	"github.com/labstack/echo/middleware"
+	"net/http"
 )
 
-func StartServer(db *gorm.DB, appConfig *config.Configuration) {
-	port := fmt.Sprintf(":%d", appConfig.ListenAddress)
+func StartServer(app routes.ApiV1Handler) {
+	port := fmt.Sprintf(":%d", app.Config.ListenAddress)
 	server := echo.New()
 
 	server.Use(middleware.Recover())
@@ -20,26 +19,27 @@ func StartServer(db *gorm.DB, appConfig *config.Configuration) {
 		AllowHeaders: []string{echo.HeaderAccessControlAllowOrigin},
 	}))
 
-	api := routes.ApiV1Handler{db, appConfig}
+	api := routes.ApiV1Handler{app.DB, app.Config}
 
 	v1 := server.Group("/v1")
+
+	v1.GET("/tasks", api.GetAllTasksHendler, middleware.JWT([]byte(app.Config.SigningKey)))
 
 	aut := v1.Group("/auth")
 	aut.GET("", api.AutenteficationHandler)
 	aut.GET("/callback", api.ProviderCallback)
 
 	task := v1.Group("/task")
-	task.Use(middleware.JWT([]byte(appConfig.SigningKey)))
+	task.Use(middleware.JWT([]byte(app.Config.SigningKey)))
 
-	task.POST("/save", api.SaveTaskHandler)
+	task.POST("", api.SaveTaskHandler)
 
-	task.PUT("/update/:id", api.UpdateTaskHandler)
-	task.DELETE("/delete/:id", api.DeleteTaskHandler)
-	task.GET("/get/:id", api.GetTaskHandler)
-	task.GET("/get_all_tasks", api.GetAllTasksHendler)
+	task.PUT("/:id", api.UpdateTaskHandler)
+	task.DELETE("/:id", api.DeleteTaskHandler)
+	task.GET("/:id", api.GetTaskHandler)
 
 	task.GET("/status", func(c echo.Context) error {
-		return c.String(200, "Status ok")
+		return c.String(http.StatusOK, "Status ok")
 	})
 
 	server.Run(standard.New(port))

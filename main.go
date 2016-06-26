@@ -2,14 +2,13 @@ package main
 
 import (
 	"flag"
-	"github.com/jinzhu/gorm"
 	"github.com/kirikami/go_exercise_api/config"
 	"github.com/kirikami/go_exercise_api/database"
+	"github.com/kirikami/go_exercise_api/routes"
 	"github.com/kirikami/go_exercise_api/server"
 )
 
-var appConfig *config.Configuration
-var db *gorm.DB
+var app routes.ApiV1Handler
 
 func init() {
 	initConfig()
@@ -18,13 +17,14 @@ func init() {
 
 func initConfig() {
 	configfile := flag.String("config", "config.json", "Config for connection to database")
-	appConfig = config.MustNewConfig(*configfile)
+	flag.Parse()
+	app.Config = config.MustNewConfig(*configfile)
 }
 
 func initDatabase() {
-	db = database.MustNewDatabase(appConfig.DatabaseConfig)
+	app.DB = database.MustNewDatabase(app.Config.DatabaseConfig)
 }
 
 func main() {
-	server.StartServer(db, appConfig)
+	server.StartServer(app)
 }

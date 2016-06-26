@@ -4,7 +4,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo"
 	"net/http"
-	"time"
 
 	"github.com/kirikami/go_exercise_api/database"
 	u "github.com/kirikami/go_exercise_api/utils"
@@ -13,129 +12,111 @@ import (
 func (h ApiV1Handler) SaveTaskHandler(c echo.Context) error {
 	task := database.Task{}
 
-	db := h.DB
-
 	err := c.Bind(&task)
 
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
-	err = db.Save(&task).Error
+	err = h.DB.Save(&task).Error
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
 	return c.JSON(http.StatusCreated, task)
-
 }
 
 func (h ApiV1Handler) UpdateTaskHandler(c echo.Context) error {
-	currentTime := time.Now()
-	db := h.DB
 	idParam := c.P(0)
-
-	if idParam == "" {
-		return echo.NewHTTPError(http.StatusNotFound)
-	}
 
 	id, err := u.ParseIdInt64FromString(idParam)
 
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusNotFound)
 	}
 
 	task := database.Task{}
-	err = db.First(&task, id).Error
+	err = h.DB.First(&task, id).Error
 
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	err = c.Bind(&task)
 
 	if err != nil {
-		return err
-	}
-	if task.IsCompleted == true {
-		task.CompletedAt = &currentTime
+		c.Logger().Error(err)
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
-	err = db.Save(&task).Error
+	u.SetIsCompleted(&task)
+
+	err = h.DB.Save(&task).Error
 
 	if err != nil {
-		return err
+		c.Logger().Error(err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	return c.JSON(http.StatusOK, task)
 }
 
 func (h ApiV1Handler) DeleteTaskHandler(c echo.Context) error {
-	db := h.DB
-
 	idParam := c.P(0)
-
-	if idParam == "" {
-		return echo.NewHTTPError(http.StatusNotFound)
-	}
 
 	id, err := u.ParseIdInt64FromString(idParam)
 
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusNotFound)
 	}
 
 	task := database.Task{}
-	err = db.First(&task, id).Error
+	err = h.DB.First(&task, id).Error
 
 	if err != nil {
-		return err
+		c.Logger().Error(err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
+
 	}
 
 	task.IsDeleted = true
-	err = db.Save(&task).Error
+	err = h.DB.Save(&task).Error
 
 	if err != nil {
-		return err
+		c.Logger().Error(err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	return c.NoContent(http.StatusNoContent)
 }
 
 func (h ApiV1Handler) GetTaskHandler(c echo.Context) error {
-	db := h.DB
-
 	idParam := c.P(0)
-
-	if idParam == "" {
-		return echo.NewHTTPError(http.StatusNotFound)
-	}
 
 	id, err := u.ParseIdInt64FromString(idParam)
 
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusNotFound)
 	}
 
 	task := database.Task{}
-	err = db.First(&task, id).Error
+	err = h.DB.First(&task, id).Error
 
 	if err != nil {
-		return err
+		c.Logger().Error(err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	return c.JSON(http.StatusOK, task)
-
 }
 
 func (h ApiV1Handler) GetAllTasksHendler(c echo.Context) error {
-	db := h.DB
-
 	tasks := []database.Task{}
-	err := db.Find(&tasks).Error
+	err := h.DB.Find(&tasks).Error
 
 	if err != nil {
-		return err
+		c.Logger().Error(err)
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	return c.JSON(http.StatusOK, tasks)
