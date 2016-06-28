@@ -16,9 +16,17 @@ type Task struct {
 	IsCompleted bool       `sql:"is_competed" json:"isCompeted"`
 }
 
-func (t Task) SetIsCompleted() {
+type TaskList struct {
+	Tasks []Task
+}
+
+func (t *Task) SetIsCompleted() {
 	current_time := time.Now()
 	if t.IsCompleted == true {
 		t.CompletedAt = &current_time
 	}
+}
+
+func (t *Task) SetIsDeleted() {
+	t.IsDeleted = true
 }

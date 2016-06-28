@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	mw "github.com/kirikami/go_exercise_api/middleware"
 	"github.com/kirikami/go_exercise_api/routes"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
@@ -13,7 +14,7 @@ func StartServer(app routes.ApiV1Handler) {
 	server := echo.New()
 
 	server.Use(middleware.Recover())
-	server.Use(middleware.Logger())
+	server.Use(mw.Logger())
 	server.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowHeaders: []string{echo.HeaderAccessControlAllowOrigin},
 	}))
@@ -26,14 +27,14 @@ func StartServer(app routes.ApiV1Handler) {
 
 	v1 := server.Group("/v1")
 
-	v1.GET("/tasks", api.GetAllTasksHendler, middleware.JWT(app.Config.SigningKey))
+	v1.GET("/tasks", api.GetAllTasksHendler, mw.JWT(app.Config.SigningKey))
 
 	aut := v1.Group("/auth")
 	aut.GET("", api.AutenteficationHandler)
 	aut.GET("/callback", api.ProviderCallback)
 
 	task := v1.Group("/task")
-	task.Use(middleware.JWT(app.Config.SigningKey))
+	task.Use(mw.JWT(app.Config.SigningKey))
 
 	task.POST("", api.SaveTaskHandler)
 

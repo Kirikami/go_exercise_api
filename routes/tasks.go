@@ -13,11 +13,11 @@ func (h ApiV1Handler) SaveTaskHandler(c echo.Context) error {
 	task := m.Task{}
 
 	if err := c.Bind(&task); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest)
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	if err := h.DB.Save(&task).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest)
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	return c.JSON(http.StatusCreated, task)
@@ -29,7 +29,7 @@ func (h ApiV1Handler) UpdateTaskHandler(c echo.Context) error {
 	id, err := u.ParseIdInt64FromString(idParam)
 
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound)
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
 	task := m.Task{}
@@ -40,7 +40,7 @@ func (h ApiV1Handler) UpdateTaskHandler(c echo.Context) error {
 
 	if err := c.Bind(&task); err != nil {
 		c.Logger().Error(err)
-		return echo.NewHTTPError(http.StatusBadRequest)
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	task.SetIsCompleted()
@@ -59,7 +59,7 @@ func (h ApiV1Handler) DeleteTaskHandler(c echo.Context) error {
 	id, err := u.ParseIdInt64FromString(idParam)
 
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound)
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
 	task := m.Task{}
@@ -70,7 +70,7 @@ func (h ApiV1Handler) DeleteTaskHandler(c echo.Context) error {
 
 	}
 
-	task.IsDeleted = true
+	task.SetIsDeleted()
 
 	if err := h.DB.Save(&task).Error; err != nil {
 		c.Logger().Error(err)
@@ -86,7 +86,7 @@ func (h ApiV1Handler) GetTaskHandler(c echo.Context) error {
 	id, err := u.ParseIdInt64FromString(idParam)
 
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound)
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
 	task := m.Task{}
@@ -100,9 +100,9 @@ func (h ApiV1Handler) GetTaskHandler(c echo.Context) error {
 }
 
 func (h ApiV1Handler) GetAllTasksHendler(c echo.Context) error {
-	tasks := []m.Task{}
+	tasks := m.TaskList{}
 
-	if err := h.DB.Find(&tasks).Error; err != nil {
+	if err := h.DB.Find(&tasks.Tasks).Error; err != nil {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
