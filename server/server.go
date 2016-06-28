@@ -10,7 +10,6 @@ import (
 )
 
 func StartServer(app routes.ApiV1Handler) {
-	port := fmt.Sprintf(":%d", app.Config.ListenAddress)
 	server := echo.New()
 
 	server.Use(middleware.Recover())
@@ -21,16 +20,20 @@ func StartServer(app routes.ApiV1Handler) {
 
 	api := routes.ApiV1Handler{app.DB, app.Config}
 
+	server.GET("/status", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, "Status ok")
+	})
+
 	v1 := server.Group("/v1")
 
-	v1.GET("/tasks", api.GetAllTasksHendler, middleware.JWT([]byte(app.Config.SigningKey)))
+	v1.GET("/tasks", api.GetAllTasksHendler, middleware.JWT(app.Config.SigningKey))
 
 	aut := v1.Group("/auth")
 	aut.GET("", api.AutenteficationHandler)
 	aut.GET("/callback", api.ProviderCallback)
 
 	task := v1.Group("/task")
-	task.Use(middleware.JWT([]byte(app.Config.SigningKey)))
+	task.Use(middleware.JWT(app.Config.SigningKey))
 
 	task.POST("", api.SaveTaskHandler)
 
@@ -38,9 +41,5 @@ func StartServer(app routes.ApiV1Handler) {
 	task.DELETE("/:id", api.DeleteTaskHandler)
 	task.GET("/:id", api.GetTaskHandler)
 
-	task.GET("/status", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Status ok")
-	})
-
-	server.Run(standard.New(port))
+	server.Run(standard.New(fmt.Sprintf(":%d", app.Config.ListenAddress)))
 }

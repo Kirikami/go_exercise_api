@@ -1,4 +1,4 @@
-package database
+package models
 
 import (
 	"time"
@@ -14,4 +14,11 @@ type Task struct {
 	CompletedAt *time.Time `sql:"completed_at" json:"completedAt"`
 	IsDeleted   bool       `sql:"is_deleted" json:"isDeleted"`
 	IsCompleted bool       `sql:"is_competed" json:"isCompeted"`
+}
+
+func (t Task) SetIsCompleted() {
+	current_time := time.Now()
+	if t.IsCompleted == true {
+		t.CompletedAt = &current_time
+	}
 }

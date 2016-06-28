@@ -10,7 +10,8 @@ type Configuration struct {
 	ListenAddress  int            `json:"listen_address"`
 	DatabaseConfig DatabaseConfig `json:"database_config"`
 	FacebookConfig FacebookConfig `json:"facebook_config"`
-	SigningKey     string         `json:"jwt_key"`
+	JWTKey         string         `json:"jwt_key"`
+	SigningKey     []byte
 }
 type DatabaseConfig struct {
 	DatabaseUri string `json:"database_address"`
@@ -43,6 +44,8 @@ func NewConfig(configfile string) (*Configuration, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	configuration.SigningKey = []byte(configuration.JWTKey)
 
 	return &configuration, nil
 }

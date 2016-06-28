@@ -30,7 +30,7 @@ func (h *ApiV1Handler) ProviderCallback(c echo.Context) error {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	t, err := token.SignedString([]byte(h.Config.SigningKey))
+	t, err := token.SignedString(h.Config.SigningKey)
 
 	if err != nil {
 		return err

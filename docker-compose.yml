@@ -2,7 +2,7 @@ go:
   build: .
   links: 
     - mysql
-  command: run_app
+  command: make run-server
 
 mysql:
   build: images/mysql
