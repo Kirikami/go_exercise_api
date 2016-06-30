@@ -45,17 +45,17 @@ func LoggerWithConfig() echo.MiddlewareFunc {
 
 			l := stop.Sub(start).Nanoseconds() / 1000
 			latency := strconv.FormatInt(l, 10)
-			human_latency := stop.Sub(start).String()
+			humanLatency := stop.Sub(start).String()
 
 			fields := log.Fields{
-				"remote_ip":     ra,
-				"method":        req.Method(),
-				"uri":           req.URI(),
-				"status":        status,
-				"rx_bytes":      rx_bytes,
-				"tx_bytes":      tx_bytes,
-				"latency":       latency,
-				"human_latency": human_latency,
+				"remote_ip":    ra,
+				"method":       req.Method(),
+				"uri":          req.URI(),
+				"status":       status,
+				"rx_bytes":     rx_bytes,
+				"tx_bytes":     tx_bytes,
+				"latency":      latency,
+				"humanLatency": human_latency,
 			}
 
 			//		log.SetFormatter(&log.JSONFormatter{})

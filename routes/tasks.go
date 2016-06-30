@@ -24,9 +24,7 @@ func (h ApiV1Handler) SaveTaskHandler(c echo.Context) error {
 }
 
 func (h ApiV1Handler) UpdateTaskHandler(c echo.Context) error {
-	idParam := c.Param("id")
-
-	id, err := u.ParseIdInt64FromString(idParam)
+	id, err := u.ParseIdInt64FromString(c.Param("id"))
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest)
@@ -54,9 +52,7 @@ func (h ApiV1Handler) UpdateTaskHandler(c echo.Context) error {
 }
 
 func (h ApiV1Handler) DeleteTaskHandler(c echo.Context) error {
-	idParam := c.Param("id")
-
-	id, err := u.ParseIdInt64FromString(idParam)
+	id, err := u.ParseIdInt64FromString(c.Param("id"))
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest)
@@ -81,9 +77,7 @@ func (h ApiV1Handler) DeleteTaskHandler(c echo.Context) error {
 }
 
 func (h ApiV1Handler) GetTaskHandler(c echo.Context) error {
-	idParam := c.Param("id")
-
-	id, err := u.ParseIdInt64FromString(idParam)
+	id, err := u.ParseIdInt64FromString(c.Param("id"))
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest)

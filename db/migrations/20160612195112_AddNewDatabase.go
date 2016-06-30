@@ -8,7 +8,7 @@ import (
 // Up is executed when this migration is applied
 func Up_20160612195112(txn *sql.Tx) {
 
-	_, err := txn.Query(`CREATE TABLE tasks (
+	_, err := txn.Query(`CREATE TABLE task (
 		id BIGINT NOT NULL AUTO_INCREMENT,
 		title CHAR(255),
 		description CHAR(255),
