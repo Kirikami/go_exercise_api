@@ -3,14 +3,14 @@ package server
 import (
 	"fmt"
 	mw "github.com/kirikami/go_exercise_api/middleware"
-	"github.com/kirikami/go_exercise_api/routes"
+	t "github.com/kirikami/go_exercise_api/server/handlers/task"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 	"github.com/labstack/echo/middleware"
 	"net/http"
 )
 
-func StartServer(app routes.ApiV1Handler) {
+func StartServer(app t.ApiV1Handler) {
 	server := echo.New()
 
 	server.Use(middleware.Recover())
@@ -19,7 +19,7 @@ func StartServer(app routes.ApiV1Handler) {
 		AllowHeaders: []string{echo.HeaderAccessControlAllowOrigin},
 	}))
 
-	api := routes.ApiV1Handler{app.DB, app.Config}
+	api := t.ApiV1Handler{app.DB, app.Config}
 
 	server.GET("/status", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "Status ok")

@@ -55,7 +55,7 @@ func LoggerWithConfig() echo.MiddlewareFunc {
 				"rx_bytes":     rx_bytes,
 				"tx_bytes":     tx_bytes,
 				"latency":      latency,
-				"humanLatency": human_latency,
+				"humanLatency": humanLatency,
 			}
 
 			//		log.SetFormatter(&log.JSONFormatter{})

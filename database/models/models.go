@@ -27,6 +27,6 @@ func (t *Task) SetIsCompleted() {
 	}
 }
 
-func (t *Task) SetIsDeleted() {
+func (t *Task) SetDeleted() {
 	t.IsDeleted = true
 }

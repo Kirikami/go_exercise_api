@@ -4,27 +4,27 @@ import (
 	"flag"
 	"github.com/kirikami/go_exercise_api/config"
 	"github.com/kirikami/go_exercise_api/database"
-	"github.com/kirikami/go_exercise_api/routes"
 	"github.com/kirikami/go_exercise_api/server"
 )
 
-var app routes.ApiV1Handler
-
-func init() {
-	initConfig()
-	initDatabase()
+type Application struct {
+	Configuration *config.Configuration
+	Database      *gorm.DB
 }
 
-func initConfig() {
+func (a *Application) InitConfiguration() {
 	configfile := flag.String("config", "config.json", "Config for connection to database")
 	flag.Parse()
-	app.Config = config.MustNewConfig(*configfile)
+	a.Configuration = config.MustNewConfig(*configfile)
 }
 
-func initDatabase() {
-	app.DB = database.MustNewDatabase(app.Config.DatabaseConfig)
+func (a *Application) InitDatabase() {
+	app.Database = database.MustNewDatabase(app.Config.DatabaseConfig)
 }
 
 func main() {
+	app = Application{}
+	app.InitConfiguration
+	app.InitDatabase
 	server.StartServer(app)
 }
