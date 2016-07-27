@@ -11,16 +11,13 @@ import (
 
 func (h ApiV1Handler) GetTaskHandler(c echo.Context) error {
 	id, err := u.ParseIdInt64FromString(c.Param("id"))
-
 	if err != nil {
-		u.SendError(http.StatusBadRequest, c, err, IdErrorMessage)
-
+		u.SendError(http.StatusBadRequest, c, err, ErrInvalidTaskId)
 	}
 
 	task := m.Task{}
-
 	if err := h.Database.First(&task, id).Error; err != nil {
-		u.SendError(http.StatusInternalServerError, c, err, DatabaseErrorMessage)
+		u.SendError(http.StatusInternalServerError, c, err, ErrInternalDatabase)
 	}
 
 	return c.JSON(http.StatusOK, task)

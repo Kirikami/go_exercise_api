@@ -19,7 +19,6 @@ func NewDatabase(c config.DatabaseConfig) (*gorm.DB, error) {
 	db.LogMode(true)
 	db.SetLogger(gorm.Logger{log.New()})
 	db.SingularTable(true)
-
 	if err != nil {
 		return nil, ErrDbConnect
 	}
@@ -29,7 +28,6 @@ func NewDatabase(c config.DatabaseConfig) (*gorm.DB, error) {
 
 func MustNewDatabase(c config.DatabaseConfig) *gorm.DB {
 	db, err := NewDatabase(c)
-
 	if err != nil {
 		panic(err)
 	}

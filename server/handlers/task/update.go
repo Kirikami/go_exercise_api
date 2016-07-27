@@ -11,27 +11,24 @@ import (
 
 func (h ApiV1Handler) UpdateTaskHandler(c echo.Context) error {
 	id, err := u.ParseIdInt64FromString(c.Param("id"))
-
 	if err != nil {
-		u.SendError(http.StatusBadRequest, c, err, IdErrorMessage)
+		u.SendError(http.StatusBadRequest, c, err, ErrInvalidTaskId)
 
 	}
 
 	task := m.Task{}
-
 	if err := h.Database.First(&task, id).Error; err != nil {
-		u.SendError(http.StatusInternalServerError, c, err, DatabaseErrorMessage)
+		u.SendError(http.StatusInternalServerError, c, err, ErrInternalDatabase)
 
 	}
 
 	if err := c.Bind(&task); err != nil {
-		u.SendError(StatusUnprocessableEntity, c, err, IncorrectDataErrorMessage)
+		u.SendError(StatusUnprocessableEntity, c, err, ErrIncorrectData)
 	}
 
 	task.SetIsCompleted()
-
 	if err := h.Database.Save(&task).Error; err != nil {
-		u.SendError(http.StatusInternalServerError, c, err, DatabaseErrorMessage)
+		u.SendError(http.StatusInternalServerError, c, err, ErrInternalDatabase)
 	}
 
 	return c.JSON(http.StatusOK, task)

@@ -11,13 +11,12 @@ import (
 
 func (h ApiV1Handler) SaveTaskHandler(c echo.Context) error {
 	task := m.Task{}
-
 	if err := c.Bind(&task); err != nil {
 		u.SendError(StatusUnprocessableEntity, c, err, IncorrectDataErrorMessage)
 	}
 
 	if err := h.Database.Save(&task).Error; err != nil {
-		u.SendError(http.StatusInternalServerError, c, err, DatabaseErrorMessage)
+		u.SendError(http.StatusInternalServerError, c, err, ErrInternalDatabase)
 
 	}
 

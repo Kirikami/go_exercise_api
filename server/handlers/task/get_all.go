@@ -11,9 +11,8 @@ import (
 
 func (h ApiV1Handler) GetAllTasksHendler(c echo.Context) error {
 	tasks := m.TaskList{}
-
 	if err := h.Database.Find(&tasks.Tasks).Error; err != nil {
-		u.SendError(http.StatusInternalServerError, c, err, DatabaseErrorMessage)
+		u.SendError(http.StatusInternalServerError, c, err, ErrInternalDatabase)
 	}
 
 	return c.JSON(http.StatusOK, tasks)

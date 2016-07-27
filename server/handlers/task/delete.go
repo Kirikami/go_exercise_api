@@ -11,21 +11,18 @@ import (
 
 func (h ApiV1Handler) DeleteTaskHandler(c echo.Context) error {
 	id, err := u.ParseIdInt64FromString(c.Param("id"))
-
 	if err != nil {
-		u.SendError(http.StatusBadRequest, c, err, IdErrorMessage)
+		u.SendError(http.StatusBadRequest, c, err, ErrInvalidTaskId)
 	}
 
 	task := m.Task{}
-
 	if err := h.Database.First(&task, id).Error; err != nil {
-		u.SendError(http.StatusInternalServerError, c, err, DatabaseErrorMessage)
+		u.SendError(http.StatusInternalServerError, c, err, ErrInternalDatabase)
 	}
 
 	task.SetDeleted()
-
 	if err := h.Database.Save(&task).Error; err != nil {
-		u.SendError(http.StatusInternalServerError, c, err, DatabaseErrorMessage)
+		u.SendError(http.StatusInternalServerError, c, err, ErrInternalDatabase)
 	}
 
 	return c.NoContent(http.StatusNoContent)

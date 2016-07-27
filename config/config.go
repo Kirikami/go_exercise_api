@@ -37,7 +37,6 @@ func NewConfig(configfile string) (*Configuration, error) {
 	}
 
 	configuration := Configuration{}
-
 	file, _ := os.Open(configfile)
 	decoder := json.NewDecoder(file)
 	err := decoder.Decode(&configuration)
@@ -52,7 +51,6 @@ func NewConfig(configfile string) (*Configuration, error) {
 
 func MustNewConfig(configfile string) *Configuration {
 	config, err := NewConfig(configfile)
-
 	if err != nil {
 		panic(err)
 	}
